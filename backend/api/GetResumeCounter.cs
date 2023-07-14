@@ -28,6 +28,7 @@ namespace Company.Function
             Connection = "AzureResumeConnectionString")] out Counter updatedCounter,
             ILogger log)
         {
+            // Here is where the counter gets updated
             log.LogInformation("C# HTTP trigger function processed a request.");
 
             updatedCounter = counter;
