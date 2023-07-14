@@ -1,0 +1,11 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "AzureResumeConnectionString": "AccountEndpoint=https://azureresume-mcdonald.documents.azure.com:443/;AccountKey=2M62UVd3vAfyfjcIbCwuL5XKGgdRrKL1KyL3yOG8hoDMCYZwAxKPt6w0Ek9CPJYTZPmWH4TuMblmACDbi02DfA=="
+  },
+  "Host": {
+    "CORS": "*"
+  }
+}
