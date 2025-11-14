@@ -1,16 +1,45 @@
+<<<<<<< HEAD
 using System.Net;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+=======
+using System;
+using System.IO;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Microsoft.Azure.Cosmos;
+using System.Net.Http;
+using System.Text;
+using Microsoft.Azure.Functions.Worker;
+>>>>>>> da07845d2153e470181aebef3406433959301585
 
 namespace Company.Function
 {
     public class GetResumeCounter
     {
+<<<<<<< HEAD
         private readonly ILogger<GetResumeCounter> _logger;
 
         public GetResumeCounter(ILogger<GetResumeCounter> logger)
+=======
+        [Function("GetResumeCounter")]
+        public static IActionResult Run(
+            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+            [CosmosDBInput(databaseName: "AzureResume",
+            containerName: "Counter",
+            Connection = "AzureResumeConnectionString",
+            Id = "1",
+            PartitionKey = "1")] Counter counter,
+            [CosmosDBInput(databaseName: "AzureResume",
+            containerName: "Counter",
+            Connection = "AzureResumeConnectionString")] out Counter updatedCounter,
+            ILogger log)
+>>>>>>> da07845d2153e470181aebef3406433959301585
         {
             _logger = logger;
         }
