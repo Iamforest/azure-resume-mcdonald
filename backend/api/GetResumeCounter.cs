@@ -1,45 +1,58 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
+using System.Net;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Microsoft.Azure.Cosmos;
-using System.Net.Http;
-using System.Text;
 
 namespace Company.Function
 {
-    public static class GetResumeCounter
+    public class GetResumeCounter
     {
-        [FunctionName("GetResumeCounter")]
-        public static HttpResponseMessage Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
-            [CosmosDB(databaseName: "AzureResume",
-            containerName: "Counter",
-            Connection = "AzureResumeConnectionString",
-            Id = "1",
-            PartitionKey = "1")] Counter counter,
-            [CosmosDB(databaseName: "AzureResume",
-            containerName: "Counter",
-            Connection = "AzureResumeConnectionString")] out Counter updatedCounter,
-            ILogger log)
+        private readonly ILogger<GetResumeCounter> _logger;
+
+        public GetResumeCounter(ILogger<GetResumeCounter> logger)
         {
-            // Here is where the counter gets updated ok?
-            log.LogInformation("C# HTTP trigger function processed a request.");
-
-            updatedCounter = counter;
-            updatedCounter.Count += 1;
-
-            var JsonToReturn = JsonConvert.SerializeObject(counter);
-
-            return new HttpResponseMessage(System.Net.HttpStatusCode.OK){
-                
-                Content = new StringContent(JsonToReturn, Encoding.UTF8)
-            };
+            _logger = logger;
         }
+
+        [Function("GetResumeCounter")]
+        [CosmosDBOutput(
+            databaseName: "AzureResume",
+            containerName: "Counter",
+            Connection = "AzureResumeConnectionString")]
+        public async Task<Counter> RunAsync(
+            [HttpTrigger(AuthorizationLevel.Function, "get", "post")]
+            HttpRequestData req,
+
+            [CosmosDBInput(
+                databaseName: "AzureResume",
+                containerName: "Counter",
+                Connection = "AzureResumeConnectionString",
+                Id = "1",
+                PartitionKey = "1")]
+            Counter counter)
+        {
+            _logger.LogInformation("HTTP trigger executed.");
+
+            // Update counter
+            counter.Count += 1;
+
+            // Prepare HTTP response
+            var response = req.CreateResponse(HttpStatusCode.OK);
+            var json = JsonConvert.SerializeObject(counter);
+            await response.WriteStringAsync(json);
+
+            // Instead of IAsyncCollector, just return the updated object
+            return counter;
+        }
+    }
+
+    public class Counter
+    {
+        [JsonProperty("id")]
+        public string Id { get; set; } = "1";
+
+        [JsonProperty("count")]
+        public int Count { get; set; }
     }
 }
